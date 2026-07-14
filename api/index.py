@@ -1,24 +1,22 @@
 import os
 import json
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date # እዚህ ጋር 'date' ተጨምሯል
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID")
-# የቻናሉን ይፋዊ መለያ እዚህ ያንብብ (ከሌለ በነባሪ ይህንን ያደርጋል)
 CHANNEL_USERNAME = os.environ.get("TELEGRAM_CHANNEL_USERNAME", "@Bethesda_Menfesawi")
 
-# 1. የግዕዝ ቀንን ከግሪጎርያን በትክክል የሚያሰላ ቀመር (Anchor-based Algorithm)
+# 1. የግዕዝ ቀንን ከግሪጎርያን በትክክል የሚያሰላ ቀመር
 def get_ethiopian_date():
-    # የአገልጋዩን ሰዓት ወደ ኢትዮጵያ ሰዓት (EAT = UTC+3) መለወጥ
     utc_now = datetime.utcnow()
     eat_now = utc_now + timedelta(hours=3)
     
-    # መልህቅ ቀን (Anchor Date)፦ መስከረም 1 ቀን 2011 ዓ.ም = September 11, 2018
-    anchor_greg = datetime.date(2018, 9, 11)
+    # እዚህ ጋር 'datetime.date' የነበረው ወደ 'date' ብቻ ተቀይሯል
+    anchor_greg = date(2018, 9, 11) 
     target_greg = eat_now.date()
     
     diff_days = (target_greg - anchor_greg).days
@@ -27,7 +25,6 @@ def get_ethiopian_date():
     current_days = diff_days
     
     while True:
-        # በግዕዝ አቆጣጠር የዓመቱ ቀናት ብዛት (በየ 4 ዓመቱ ጳጉሜ 6 ስትሆን 366 ቀናት ይሆናል)
         is_leap = 1 if (eth_year % 4 == 3) else 0
         days_in_year = 366 if is_leap else 365
         
@@ -45,7 +42,6 @@ def get_ethiopian_date():
     eth_month = (current_days // 30) + 1
     eth_day = (current_days % 30) + 1
     
-    # የወራት ስሞች በግዕዝ
     months_amharic = [
         "መስከረም", "ጥቅምት", "ሕዳር", "ታኅሣሥ", "ጥር", "የካቲት", 
         "መጋቢት", "ሚያዝያ", "ግንቦት", "ሰኔ", "ሐምሌ", "ነሐሴ", "ጳጉሜ"
@@ -53,7 +49,7 @@ def get_ethiopian_date():
     
     return eth_year, eth_month, months_amharic[eth_month - 1], eth_day
 
-# 2. ጥልቅ የሆነ የስነ-መለኮትና የበዓላት ዳታቤዝ (Theological Knowledge Base)
+# 2. ጥልቅ የሆነ የስነ-መለኮትና የበዓላት ዳታቤዝ
 def get_theological_teaching(month_num, day_num, month_name):
     # ሐምሌ 7 - ታላቁ የሥላሴ ዓመታዊ በዓል
     if month_num == 11 and day_num == 7:
@@ -64,14 +60,14 @@ def get_theological_teaching(month_num, day_num, month_name):
                 "ዛሬ ሐምሌ 7 ቀን ታላቁና ቀዳሚው የቅድስት ሥላሴ ዓመታዊ የክብረ በዓል ዕለት ነው። "
                 "በዚሁ ዕለት አምላካዊው ምስጢር ለአባታችን ለአብርሃም በቅዱስ ኦክ ዛፍ ሥር (በመምሬ ዛፍ) ተገልጧል። "
                 "ሦስት እንግዶች ሆነው ተገልጠው አብርሃምንና ሳራን የጎበኙበት፣ እርጅናቸውን አሳልፈው 'በሚቀጥለው ዓመት ልጅ ትወልዳላችሁ' "
-                "ብለው የይስሐቅን መወለድ የምስራች የነገሩበት ታላቅ ዕለት ነው (ዘፍ 18:1-15)።\n\n"
+                "ብለው የይስሐቅን መወለድ የምስራች የነገሩበት ታላቅ ዕለት ነው (ዘፍ 18:1-15)。\n\n"
                 "**📌 ምስጢር ከምስጢር ጋር (ብሉይ ከሐዲስ)፦**\n"
                 "በብሉይ ኪዳን አብርሃም ያያቸው ሦስቱ እንግዶችና የሰገደላቸው አንዱ ስግደት የሥላሴን አንድነትና ሦስትነት "
                 "(በአካል ሦስት፣ በባሕርይና በፈቃድ አንድ መሆናቸውን) በምስል ያሳያል። ይህ ምስጢር በሐዲስ ኪዳን በጌታችን በጥምቀት ዕለት "
-                "አብ በደመና ሆኖ 'የምወደው ልጄ ይህ ነው' ሲል፣ ወልድ በዮርዳኖስ ሲጠመቅ፣ መንፈስ ቅዱስ በርግብ አምሳል ሲወርድ ሙሉ በሙሉ ተገልጧል (ማቴ 3:13)።\n\n"
+                "አብ በደመና ሆኖ 'የምወደው ልጄ ይህ ነው' ሲል፣ ወልድ በዮርዳኖስ ሲጠመቅ፣ መንፈስ ቅዱስ በርግብ አምሳል ሲወርድ ሙሉ በሙሉ ተገልጧል (ማቴ 3:13)。\n\n"
                 "**🎼 የቅዱስ ያሬድ ዜማ (መዝሙር)፦**\n"
                 "ታላቁ ሊቅ ቅዱስ ያሬድ በዚሁ ዕለት እንዲህ ብሎ አመስግኗል፦\n"
-                "_'ሃሌ ሉያ! ሰገዱ ሎቱ ሰማይ ወምድር፣ ወኵሉ ዘውስተ CardArray። ሥላሴ ቅዱስ ዘይነብር በሰማያት፣ ውእቱ ያድኅነነ እምኵሉ እኩይ።'_\n"
+                "_'ሃሌ ሉያ! ሰገዱ ሎቱ ሰማይ ወምድር፣ ወኵሉ ዘውስተ። ሥላሴ ቅዱስ ዘይነብር በሰማያት፣ ውእቱ ያድኅነነ እምኵሉ እኩይ።'_\n"
                 "*(ትርጉም፦ ሰማይና ምድር፣ በውስጣቸውም ያሉት ሁሉ ለእርሱ ሰገዱለት። በሰማያት የሚኖር ቅዱስ ሥላሴ፣ እርሱ ከክፉ ነገር ሁሉ ያድነናል።)*\n\n"
                 "**📖 የአበው ትምህርት (አባ ጊዮርጊስ ዘጋስጫ)፦**\n"
                 "ዛሬ የኢትዮጵያ ቤተክርስቲያን ከዋክብት አንዱ የሆነው የታላቁ ሊቅ የሰዓታትና የአርጋኖን ደራሲ 'አባ ጊዮርጊስ ዘጋስጫ' ዕረፍቱ ነው። "
@@ -81,7 +77,7 @@ def get_theological_teaching(month_num, day_num, month_name):
             "closing": "በቅድስት ሥላሴ ጥበቃ ሥር እንኑር። ወስብሐት ለእግዚአብሔር!"
         }
         
-    # ወርሃዊ በዓላትና መደበኛ ቀናት (ለምሳሌ በየወሩ በ7 ሥላሴ፣ በ12 ሚካኤል፣ በ21 ማርያም፣ በ27 መድኃኔዓለም)
+    # ወርሃዊ በዓላትና መደበኛ ቀናት (በየወሩ በ7 ሥላሴ፣ በ12 ሚካኤል፣ በ21 ማርያም፣ በ27 መድኃኔዓለም)
     monthly_feasts = {
         7: {
             "category": "ወርሃዊ ትምህርተ ወንጌል",
@@ -133,7 +129,6 @@ def get_theological_teaching(month_num, day_num, month_name):
         }
     }
     
-    # ለሌሎች ቀናት የሚሆን አጠቃላይና ጥልቅ መንፈሳዊ ትምህርት (Fallback)
     default_teaching = {
         "category": f"ትምህርተ ወንጌል - {month_name} {day_num}",
         "title": "መንፈሳዊ ዝግጅት እና የክርስትና ሕይወት ጉዞ",
@@ -154,11 +149,9 @@ def get_theological_teaching(month_num, day_num, month_name):
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/<path:path>', methods=['GET', 'POST'])
 def catch_all(path):
-    # መለጠፊያው ሊንክ ከተጠራ
     if 'post_scheduler' in path or path == 'api/post_scheduler':
         return post_to_channel()
     
-    # መደበኛው ገጽ ከተጠራ
     eth_year, eth_month_num, eth_month_name, eth_day = get_ethiopian_date()
     return jsonify({
         "status": "healthy",
@@ -174,13 +167,9 @@ def post_to_channel():
         return jsonify({"status": "unauthorized", "message": "ደህንነትዎ አልተረጋገጠም!"}), 401
 
     try:
-        # የዛሬውን የግዕዝ ቀን ማስላት
         eth_year, eth_month_num, eth_month_name, eth_day = get_ethiopian_date()
-        
-        # ጥልቁን ትምህርት ከዳታቤዝ ማውጣት
         lesson = get_theological_teaching(eth_month_num, eth_day, eth_month_name)
         
-        # የጽሑፍ ቅርጻ ቅርፅና ውበት (ኦርቶዶክሳዊ የአጻጻፍ ስልት)
         telegram_message = (
             f"⛪️ **{lesson['category']}** ⛪️\n"
             f"📅 **ቀን፦ {eth_month_name} {eth_day} ቀን {eth_year} ዓ.ም**\n"
