@@ -7,17 +7,16 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID")
-CRON_SECRET = os.environ.get("CRON_SECRET")
+CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID") # ይህ ቁጥሩ (-1003891812407) ሆኖ ይቀጥላል
+CHANNEL_USERNAME = os.environ.get("TELEGRAM_CHANNEL_USERNAME", "@Bethesda_Menfesawi") # የቻናልህ ዩዘርኔም
 
-# ዌብሳይቱን ዝም ብለን ስንከፍተው የሚመጣ ገጽ (ለሰላምታ)
 @app.route('/')
 def home():
     return jsonify({"status": "healthy", "message": "ቤተሳይዳ መንፈሳዊ አገልግሎት በሰላም እየሰራ ነው!"})
 
-# ክሮን ጆቡ የሚጠራው ዋናው የትምህርት መለቀቂያ መስመር
 @app.route('/api/post_scheduler', methods=['GET', 'POST'])
 def post_to_channel():
+    CRON_SECRET = os.environ.get("CRON_SECRET")
     auth_header = request.headers.get('Authorization')
     if CRON_SECRET and auth_header != f"Bearer {CRON_SECRET}":
         return jsonify({"status": "unauthorized", "message": "ደህንነትዎ አልተረጋገጠም!"}), 401
@@ -28,6 +27,7 @@ def post_to_channel():
         
         lesson = random.choice(data['teachings'])
         
+        # መልእክቱን ይበልጥ በሚያምር አቀራረብ ማስተካከል
         telegram_message = (
             f"⛪️ **{lesson['category']}** ⛪️\n\n"
             f"📖 **{lesson['title']}**\n"
@@ -35,7 +35,7 @@ def post_to_channel():
             f"{lesson['body']}\n\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
             f"✨ *{lesson['closing']}*\n\n"
-            f"🔔 ይቀላቀሉ፦ {CHANNEL_ID}"
+            f"🔔 ይቀላቀሉ፦ {@Bethesda_Menfesawi_Timhirt}" # እዚህ ጋር ቁጥሩ ሳይሆን ዩዘርኔሙ ይታያል
         )
         
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
