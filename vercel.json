@@ -1,4 +1,16 @@
 {
+  "builds": [
+    {
+      "src": "api/post_scheduler.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/post_scheduler",
+      "dest": "api/post_scheduler.py"
+    }
+  ],
   "crons": [
     {
       "path": "/api/post_scheduler",
