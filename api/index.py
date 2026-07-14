@@ -10,11 +10,14 @@ TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID")
 CRON_SECRET = os.environ.get("CRON_SECRET")
 
-# 404 ስህተትን ለመከላከል ለሁለቱም አድራሻዎች ምላሽ እንዲሰጥ እናደርገዋለን
-@app.route('/', methods=['GET', 'POST'])
+# ዌብሳይቱን ዝም ብለን ስንከፍተው የሚመጣ ገጽ (ለሰላምታ)
+@app.route('/')
+def home():
+    return jsonify({"status": "healthy", "message": "ቤተሳይዳ መንፈሳዊ አገልግሎት በሰላም እየሰራ ነው!"})
+
+# ክሮን ጆቡ የሚጠራው ዋናው የትምህርት መለቀቂያ መስመር
 @app.route('/api/post_scheduler', methods=['GET', 'POST'])
 def post_to_channel():
-    # የVercel Cron Job ደህንነት ማረጋገጫ (ከተዋቀረ ብቻ ነው የሚሠራው)
     auth_header = request.headers.get('Authorization')
     if CRON_SECRET and auth_header != f"Bearer {CRON_SECRET}":
         return jsonify({"status": "unauthorized", "message": "ደህንነትዎ አልተረጋገጠም!"}), 401
