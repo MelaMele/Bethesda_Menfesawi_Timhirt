@@ -1,20 +1,8 @@
 {
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/post_scheduler",
-      "schedule": "*/30 * * * *"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     }
   ]
 }
