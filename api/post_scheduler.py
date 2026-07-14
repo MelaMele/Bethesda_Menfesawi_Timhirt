@@ -2,25 +2,29 @@ import os
 import json
 import random
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# ከVercel Environment Variables የሚነበቡ ሚስጥራዊ ቁልፎች
 TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID") # ለምሳሌ፡ @Bethesda_Menfesawi
+CHANNEL_ID = os.environ.get("TELEGRAM_CHANNEL_ID")
+CRON_SECRET = os.environ.get("CRON_SECRET")
 
+# 404 ስህተትን ለመከላከል ለሁለቱም አድራሻዎች ምላሽ እንዲሰጥ እናደርገዋለን
+@app.route('/', methods=['GET', 'POST'])
 @app.route('/api/post_scheduler', methods=['GET', 'POST'])
 def post_to_channel():
+    # የVercel Cron Job ደህንነት ማረጋገጫ (ከተዋቀረ ብቻ ነው የሚሠራው)
+    auth_header = request.headers.get('Authorization')
+    if CRON_SECRET and auth_header != f"Bearer {CRON_SECRET}":
+        return jsonify({"status": "unauthorized", "message": "ደህንነትዎ አልተረጋገጠም!"}), 401
+
     try:
-        # የJSON ፋይሉን ማንበብ
         with open('contents.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
         
-        # አንድ ትምህርት በዘፈቀደ መምረጥ (በኋላ ላይ እንደ ቀኑ መቁጠሪያ እንዲመርጥ እናደርገዋለን)
         lesson = random.choice(data['teachings'])
         
-        # መልእክቱን በኦርቶዶክሳዊ ውበት ማዘጋጀት
         telegram_message = (
             f"⛪️ **{lesson['category']}** ⛪️\n\n"
             f"📖 **{lesson['title']}**\n"
@@ -31,7 +35,6 @@ def post_to_channel():
             f"🔔 ይቀላቀሉ፦ {CHANNEL_ID}"
         )
         
-        # ወደ ቴሌግራም መላክ
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         payload = {
             "chat_id": CHANNEL_ID,
