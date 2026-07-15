@@ -20,6 +20,7 @@ def get_sermon_from_json():
         # የፋይሉን መገኛ በትክክል መፈለግ
         base_dir = os.path.dirname(os.path.abspath(__file__))
         json_path = os.path.join(base_dir, 'sermons.json')
+        
         # ፋይሉ በ root directory ውስጥ ካለ ደግሞ ወደ ላይ አንድ ደረጃ ወጥቶ እንዲፈልግ
         if not os.path.exists(json_path):
             json_path = os.path.join(os.path.dirname(base_dir), 'sermons.json')
@@ -86,7 +87,8 @@ def catch_all(path):
                         "chat_id": chat_id, "text": reply_text, "parse_mode": "Markdown"
                     })
             return jsonify({"status": "success"}), 200
-        except:
+        except Exception as e:
+            print(f"Webhook error: {e}")
             return jsonify({"status": "error"}), 500
 
     # -------------------------------------------------------------
@@ -104,6 +106,9 @@ def post_to_channel_only():
         if not sermon:
             return jsonify({"status": "error", "message": "No sermons found in JSON file"}), 404
         
+        # የቻናሉን ዩዘርኔም ፎርማት ማስተካከል (የ@ ምልክት ከሌለው እንዲጨምር)
+        clean_channel = CHANNEL_USERNAME if CHANNEL_USERNAME.startswith("@") else f"@{CHANNEL_USERNAME}"
+        
         channel_message = (
             f"⛪️ **{sermon['category']}** ⛪️\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -114,10 +119,11 @@ def post_to_channel_only():
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"{sermon['quote']}\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"🔔 ለማንበብና ለመማር ቻናላችንን ይቀላቀሉ፦ {"@BeenteSmaMariam_bot}"
+            f"📢 ቻናላችንን ይቀላቀሉ፦ {clean_channel}\n"
+            f"💬 ለግል ጥያቄና አስተያየት ቦቱን ያነጋግሩ፦ @BeenteSmaMariam_bot"
         )
         
-        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        # የቴሌግራም ፔይሎድ (Payload) ማዘጋጀት
         payload = {
             "chat_id": CHANNEL_ID,
             "text": channel_message,
@@ -125,6 +131,15 @@ def post_to_channel_only():
             "disable_web_page_preview": True
         }
         
+        # ከ JSON የመጣውን አዝራር (Inline Button) በፔይሎዱ ውስጥ ማካተት
+        if "button_text" in sermon and "button_url" in sermon:
+            payload["reply_markup"] = {
+                "inline_keyboard": [[
+                    {"text": sermon["button_text"], "url": sermon["button_url"]}
+                ]]
+            }
+        
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
         res = requests.post(url, json=payload)
         return jsonify({"status": "channel_posted_successfully", "telegram_response": res.json()}), 200
             
