@@ -58,10 +58,10 @@ def catch_all(path):
 
                 if text.startswith("/start"):
                     welcome = (
-                        "⛪️ **እንኳን ወደ ቤተሳይዳ መንፈሳዊ ቦት በደህና መጡ!** ⛪️\n\n"
+                        "⛪️ *እንኳን ወደ ቤተሳይዳ መንፈሳዊ ቦት በደህና መጡ!* ⛪️\n\n"
                         "ይህ ቦት የግል መንፈሳዊ ጥያቄዎችን ለመመለስ የተዘጋጀ ረዳት ነው። "
                         "የሚፈልጉትን ማንኛውንም ጥያቄ እዚህ መጻፍ ይችላሉ።\n\n"
-                        "📢 **ማሳሰቢያ፦** ዕለታዊ ሰፊ ትምህርቶችንና ስብከቶችን ለማንበብ እባክዎ ዋናውን ቻናላችንን ይቀላቀሉ!"
+                        "📢 *ማሳሰቢያ፦* ዕለታዊ ሰፊ ትምህርቶችንና ስብከቶችን ለማንበብ እባክዎ ዋናውን ቻናላችንን ይቀላቀሉ!"
                     )
                     
                     if CHANNEL_USERNAME.startswith("http"):
@@ -78,7 +78,7 @@ def catch_all(path):
                 
                 elif text:
                     reply_text = (
-                        "✨ **የእውቀትና የጥያቄ ማዕድ** ✨\n"
+                        "✨ *የእውቀትና የጥያቄ ማዕድ* ✨\n"
                         "━━━━━━━━━━━━━━━━━━━\n"
                         f"ስለ ጠየቁት ርዕስ (*{text}*) በጥናቱ ላይ እንገኛለን።\n\n"
                         "ጥያቄዎ እጅግ ጠቃሚና የሚያንጽ ነው። በቅርቡ በሊቃውንት አንድምታ አደራጅተን እንልክልዎታለን።"
@@ -110,9 +110,9 @@ def post_to_channel_only():
         clean_channel = CHANNEL_USERNAME if CHANNEL_USERNAME.startswith("@") else f"@{CHANNEL_USERNAME}"
         
         channel_message = (
-            f"⛪️ **{sermon['category']}** ⛪️\n"
+            f"⛪️ *{sermon['category']}* ⛪️\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"📖 **{sermon['title']}**\n"
+            f"📖 *{sermon['title']}*\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
             f"{sermon['body']}\n\n"
             f"{sermon['theological_depth']}\n\n"
