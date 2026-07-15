@@ -20,7 +20,6 @@ def get_sermon_from_json():
         # የፋይሉን መገኛ በትክክል መፈለግ
         base_dir = os.path.dirname(os.path.abspath(__file__))
         json_path = os.path.join(base_dir, 'sermons.json')
-        
         # ፋይሉ በ root directory ውስጥ ካለ ደግሞ ወደ ላይ አንድ ደረጃ ወጥቶ እንዲፈልግ
         if not os.path.exists(json_path):
             json_path = os.path.join(os.path.dirname(base_dir), 'sermons.json')
@@ -115,7 +114,7 @@ def post_to_channel_only():
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n"
             f"{sermon['quote']}\n"
             f"━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-            f"🔔 ለማንበብና ለመማር ቻናላችንን ይቀላቀሉ፦ {CHANNEL_USERNAME}"
+            f"🔔 ለማንበብና ለመማር ቻናላችንን ይቀላቀሉ፦ {"@BeenteSmaMariam_bot}"
         )
         
         url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
